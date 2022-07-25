@@ -1,0 +1,312 @@
+substitutions:
+  devicename:    Pets Feeder
+  devicename_id: pet-feeder
+  board_type:    d1_mini
+  static_ipaddr: 192.168.0.150
+
+esphome:
+  name:  $devicename_id
+  on_boot:
+    priority: -10
+    then:
+      - switch.turn_off: engine
+      - switch.turn_off: engine_led
+
+esp8266:
+  board: $board_type
+
+logger:
+
+api:
+  encryption:
+    key: !secret api_encryption
+
+ota:
+  password:    !secret ota_password
+  id:          my_ota
+
+wifi:
+  networks:
+  - ssid:      !secret wifi_ssid
+    password:  !secret wifi_password
+  - ssid:      !secret wifi2_ssid
+    password:  !secret wifi2_password
+
+  manual_ip:
+    static_ip: $static_ipaddr
+    gateway:   !secret gateway
+    subnet:    !secret subnet
+    dns1:      !secret dns1
+
+  ap:
+    ssid:      $devicename Hotspot
+    password:  !secret ap_password
+
+captive_portal:
+
+web_server:
+  port: 80
+
+globals:
+  - id: skip_next
+    type: bool
+    restore_value: yes
+    initial_value: 'false'
+
+  - id: act_meal
+    type: int
+    initial_value: '0'
+
+  - id: stop_meal
+    type: int
+    initial_value: '0'
+
+number:
+  - platform: template
+    name: "Meal Extra quantity"
+    id: meal_0_qty
+    icon: "mdi:counter"
+    restore_value: true
+    optimistic: true
+    min_value: 0
+    max_value: 10
+    step: 1
+
+  - platform: template
+    name: "Meal 1 quantity"
+    id: meal_1_qty
+    icon: "mdi:counter"
+    restore_value: true
+    optimistic: true
+    min_value: 0
+    max_value: 10
+    step: 1
+
+  - platform: template
+    name: "Meal 2 quantity"
+    id: meal_2_qty
+    icon: "mdi:counter"
+    restore_value: true
+    optimistic: true
+    min_value: 0
+    max_value: 10
+    step: 1
+
+  - platform: template
+    name: "Meal 3 quantity"
+    id: meal_3_qty
+    icon: "mdi:counter"
+    restore_value: true
+    optimistic: true
+    min_value: 0
+    max_value: 10
+    step: 1
+
+  - platform: template
+    name: "Meal 4 quantity"
+    id: meal_4_qty
+    icon: "mdi:counter"
+    restore_value: true
+    optimistic: true
+    min_value: 0
+    max_value: 10
+    step: 1
+
+time:
+  - platform: sntp
+    timezone: Europe/Rome
+    id: local_time
+    on_time_sync:
+      then:
+        - logger.log: "Synchronized system clock"
+        - lambda: |-
+            char str[17];
+            time_t currTime = id(local_time).now().timestamp;
+            strftime(str, sizeof(str), "%Y-%m-%d %H:%M", localtime(&currTime));
+            id(current_time).publish_state(str);
+    on_time:
+#-------------------------------------------------------------------------------- First meal timer
+      - hours: 6
+        minutes: 30
+        seconds: 0
+        then:
+          - button.press: meal1
+#-------------------------------------------------------------------------------- Second meal timer
+      - hours: 13
+        minutes: 0
+        seconds: 0
+        then:
+          - button.press: meal2
+#-------------------------------------------------------------------------------- Third meal timer
+      - hours: 19
+        minutes: 30
+        seconds: 0
+        then:
+          - button.press: meal3
+#-------------------------------------------------------------------------------- Forth meal timer
+      - hours: 20
+        minutes: 0
+        seconds: 0
+        then:
+          - button.press: meal4
+
+text_sensor:
+  - platform: version
+    name: $devicename ESPHome Version
+
+  - platform: wifi_info
+    ip_address:
+      name: $devicename IP
+    ssid:
+      name: $devicename SSID
+    bssid:
+      name: $devicename BSSID
+
+  - platform: template
+    name: "Current time"
+    id: current_time
+    lambda: |-
+      char str[17];
+      time_t currTime = id(local_time).now().timestamp;
+      strftime(str, sizeof(str), "%Y-%m-%d %H:%M", localtime(&currTime));
+      return  { str };
+    update_interval: 60s
+
+binary_sensor:
+  - platform: status
+    name: $devicename Stato
+
+  - platform: gpio
+    pin:
+      number: D5
+      mode:
+        input: true
+        pullup: true
+      inverted: true
+    id: "cycle_counter"
+    internal: true
+    on_press:
+      - lambda: |-
+          id(act_meal) = id(act_meal)+1;
+          if (id(act_meal) == id(stop_meal)) {
+            id(engine).turn_off();
+            id(engine_led).turn_off();
+            id(act_meal) = 0;
+          }
+
+button:
+  - platform: restart
+    name: "$devicename Riavvia"
+
+  - platform: template
+    name: "Meal Extra"
+    id: meal0
+    on_press:
+      - lambda: |-
+          if ((int)id(meal_0_qty).state > 0) {
+            id(stop_meal) = (int)id(meal_0_qty).state;
+            id(engine).turn_on();
+            id(skip_next) = 1;
+          }
+
+  - platform: template
+    name: "Meal 1"
+    id: meal1
+    internal: true
+    on_press:
+      - lambda: |-
+          if (id(skip_next) == 0 && (int)id(meal_1_qty).state > 0) {
+            id(stop_meal) = (int)id(meal_1_qty).state;
+            id(engine).turn_on();
+          } else {
+            id(skip_next) = 0;
+          }
+
+  - platform: template
+    name: "Meal 2"
+    id: meal2
+    internal: true
+    on_press:
+      - lambda: |-
+          if (id(skip_next) == 0 && (int)id(meal_2_qty).state > 0) {
+            id(stop_meal) = (int)id(meal_2_qty).state;
+            id(engine).turn_on();
+          } else {
+            id(skip_next) = 0;
+          }
+
+  - platform: template
+    name: "Meal 3"
+    id: meal3
+    internal: true
+    on_press:
+      - lambda: |-
+          if (id(skip_next) == 0 && (int)id(meal_3_qty).state > 0) {
+            id(stop_meal) = (int)id(meal_3_qty).state;
+            id(engine).turn_on();
+          } else {
+            id(skip_next) = 0;
+          }
+
+  - platform: template
+    name: "Meal 4"
+    id: meal4
+    internal: true
+    on_press:
+      - lambda: |-
+          if (id(skip_next) == 0 && (int)id(meal_4_qty).state > 0) {
+            id(stop_meal) = (int)id(meal_4_qty).state;
+            id(engine).turn_on();
+          } else {
+            id(skip_next) = 0;
+          }
+
+switch:
+  - platform: template
+    name: "Skip next"
+    id: skip_next_meal
+    icon: "mdi:debug-step-over"
+    lambda: |-
+      if (id(skip_next) == 1) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      - lambda: |-
+          id(skip_next) = 1;
+    turn_off_action:
+      - lambda: |-
+          id(skip_next) = 0;
+
+#------------------------------------------------------------------------------- Engine
+# Connect relay to D1/GPIO5 or change it
+  - platform: gpio
+    pin: D1
+    id: engine
+    internal: true
+    on_turn_on:
+      - switch.turn_on: engine_led
+      - delay: 12000ms
+      - switch.turn_off: engine
+    on_turn_off:
+      - switch.turn_off: engine_led
+      - lambda: |-
+          id(act_meal) = 0;
+          id(stop_meal) = 0;
+
+#------------------------------------------------------------------------------- Engine Led
+# Connect led to show the working cycle to D7/GPIO13 or change it
+  - platform: gpio
+    pin: D7
+    id: engine_led
+    internal: true
+    icon: "mdi:led-off"
+
+sensor:
+  - platform: uptime
+    name: $devicename Uptime
+
+  - platform: wifi_signal
+    name: $devicename WiFi Signal
+    update_interval: 60s
