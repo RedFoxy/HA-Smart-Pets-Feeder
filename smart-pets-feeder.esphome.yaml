@@ -1,6 +1,6 @@
 substitutions:
-  devicename:    Pets Feeder
-  devicename_id: pet-feeder
+  devicename:   Smart Pets Feeder
+  devicename_id: pets-feeder
   board_type:    d1_mini
   static_ipaddr: 192.168.0.150
 
@@ -14,6 +14,7 @@ esphome:
 
 esp8266:
   board: $board_type
+  restore_from_flash: true
 
 logger:
 
@@ -61,10 +62,14 @@ globals:
     type: int
     initial_value: '0'
 
+  - id: time_upd
+    type: bool
+    initial_value: 'false'
+
 number:
   - platform: template
-    name: "Meal Extra quantity"
-    id: meal_0_qty
+    name: "Extra Meal - Food quantity"
+    id: extra_meal_qty
     icon: "mdi:counter"
     restore_value: true
     optimistic: true
@@ -73,7 +78,7 @@ number:
     step: 1
 
   - platform: template
-    name: "Meal 1 quantity"
+    name: "Meal 1 - Food quantity"
     id: meal_1_qty
     icon: "mdi:counter"
     restore_value: true
@@ -83,7 +88,27 @@ number:
     step: 1
 
   - platform: template
-    name: "Meal 2 quantity"
+    name: "Meal 1 - Schedule: Hour"
+    id: meal_1_hour
+    icon: "mdi:hours-24"
+    restore_value: true
+    optimistic: true
+    min_value: 0
+    max_value: 23
+    step: 1
+
+  - platform: template
+    name: "Meal 1 - Schedule: Minute"
+    id: meal_1_mins
+    icon: "mdi:clock-time-one-outline"
+    restore_value: true
+    optimistic: true
+    min_value: 0
+    max_value: 59
+    step: 1
+
+  - platform: template
+    name: "Meal 2 - Food quantity"
     id: meal_2_qty
     icon: "mdi:counter"
     restore_value: true
@@ -93,7 +118,27 @@ number:
     step: 1
 
   - platform: template
-    name: "Meal 3 quantity"
+    name: "Meal 2 - Schedule: Hour"
+    id: meal_2_hour
+    icon: "mdi:hours-24"
+    restore_value: true
+    optimistic: true
+    min_value: 0
+    max_value: 23
+    step: 1
+
+  - platform: template
+    name: "Meal 2 - Schedule: Minute"
+    id: meal_2_mins
+    icon: "mdi:clock-time-one-outline"
+    restore_value: true
+    optimistic: true
+    min_value: 0
+    max_value: 59
+    step: 1
+
+  - platform: template
+    name: "Meal 3 - Food quantity"
     id: meal_3_qty
     icon: "mdi:counter"
     restore_value: true
@@ -103,7 +148,27 @@ number:
     step: 1
 
   - platform: template
-    name: "Meal 4 quantity"
+    name: "Meal 3 - Schedule: Hour"
+    id: meal_3_hour
+    icon: "mdi:hours-24"
+    restore_value: true
+    optimistic: true
+    min_value: 0
+    max_value: 23
+    step: 1
+
+  - platform: template
+    name: "Meal 3 - Schedule: Minute"
+    id: meal_3_mins
+    icon: "mdi:clock-time-one-outline"
+    restore_value: true
+    optimistic: true
+    min_value: 0
+    max_value: 59
+    step: 1
+
+  - platform: template
+    name: "Meal 4 - Food quantity"
     id: meal_4_qty
     icon: "mdi:counter"
     restore_value: true
@@ -112,43 +177,38 @@ number:
     max_value: 10
     step: 1
 
+  - platform: template
+    name: "Meal 4 - Schedule: Hour"
+    id: meal_4_hour
+    icon: "mdi:hours-24"
+    restore_value: true
+    optimistic: true
+    min_value: 0
+    max_value: 23
+    step: 1
+
+  - platform: template
+    name: "Meal 4 - Schedule: Minute"
+    id: meal_4_mins
+    icon: "mdi:clock-time-one-outline"
+    restore_value: true
+    optimistic: true
+    min_value: 0
+    max_value: 59
+    step: 1
+
 time:
   - platform: sntp
     timezone: Europe/Rome
     id: local_time
     on_time_sync:
       then:
-        - logger.log: "Synchronized system clock"
         - lambda: |-
             char str[17];
             time_t currTime = id(local_time).now().timestamp;
             strftime(str, sizeof(str), "%Y-%m-%d %H:%M", localtime(&currTime));
             id(current_time).publish_state(str);
-    on_time:
-#-------------------------------------------------------------------------------- First meal timer
-      - hours: 6
-        minutes: 30
-        seconds: 0
-        then:
-          - button.press: meal1
-#-------------------------------------------------------------------------------- Second meal timer
-      - hours: 13
-        minutes: 0
-        seconds: 0
-        then:
-          - button.press: meal2
-#-------------------------------------------------------------------------------- Third meal timer
-      - hours: 19
-        minutes: 30
-        seconds: 0
-        then:
-          - button.press: meal3
-#-------------------------------------------------------------------------------- Forth meal timer
-      - hours: 20
-        minutes: 0
-        seconds: 0
-        then:
-          - button.press: meal4
+            id(time_upd) = true;
 
 text_sensor:
   - platform: version
@@ -166,48 +226,22 @@ text_sensor:
     name: "Current time"
     id: current_time
     lambda: |-
+      if (id(time_upd)) {
+        if (id(local_time).now().hour == (int)id(meal_1_hour).state && id(local_time).now().minute == (int)id(meal_1_mins).state) {id(meal1).press();}
+        if (id(local_time).now().hour == (int)id(meal_2_hour).state && id(local_time).now().minute == (int)id(meal_2_mins).state) {id(meal2).press();}
+        if (id(local_time).now().hour == (int)id(meal_3_hour).state && id(local_time).now().minute == (int)id(meal_3_mins).state) {id(meal3).press();}
+        if (id(local_time).now().hour == (int)id(meal_4_hour).state && id(local_time).now().minute == (int)id(meal_4_mins).state) {id(meal4).press();}
+      }
+
       char str[17];
       time_t currTime = id(local_time).now().timestamp;
       strftime(str, sizeof(str), "%Y-%m-%d %H:%M", localtime(&currTime));
       return  { str };
     update_interval: 60s
 
-binary_sensor:
-  - platform: status
-    name: $devicename Stato
-
-  - platform: gpio
-    pin:
-      number: D5
-      mode:
-        input: true
-        pullup: true
-      inverted: true
-    id: "cycle_counter"
-    internal: true
-    on_press:
-      - lambda: |-
-          id(act_meal) = id(act_meal)+1;
-          if (id(act_meal) == id(stop_meal)) {
-            id(engine).turn_off();
-            id(engine_led).turn_off();
-            id(act_meal) = 0;
-          }
-
 button:
   - platform: restart
     name: "$devicename Riavvia"
-
-  - platform: template
-    name: "Meal Extra"
-    id: meal0
-    on_press:
-      - lambda: |-
-          if ((int)id(meal_0_qty).state > 0) {
-            id(stop_meal) = (int)id(meal_0_qty).state;
-            id(engine).turn_on();
-            id(skip_next) = 1;
-          }
 
   - platform: template
     name: "Meal 1"
@@ -303,9 +337,54 @@ switch:
     internal: true
     icon: "mdi:led-off"
 
+#------------------------------------------------------------------------------- Extra Meal
+# Connect Extra Meal button to D6/GPIO12 or change it
+  - platform: gpio
+    pin:
+      number: D6
+      mode:
+        input: true
+        pullup: true
+      inverted: true
+    id: "extra_meal"
+    name: "Extra Meal"
+    on_turn_on:
+      - lambda: |-
+          if ((int)id(extra_meal_qty).state > 0) {
+            id(stop_meal) = (int)id(extra_meal_qty).state;
+            id(engine).turn_on();
+          }
+      - delay: 100ms
+      - switch.turn_off: extra_meal
+
+binary_sensor:
+  - platform: status
+    name: $devicename State
+
+#------------------------------------------------------------------------------- Cycle Counter
+# Connect Cycle counter button to D5/GPIO14 or change it
+  - platform: gpio
+    pin:
+      number: D5
+      mode:
+        input: true
+        pullup: true
+      inverted: true
+    id: "cycle_counter"
+    internal: true
+    on_press:
+      - lambda: |-
+          id(act_meal) = id(act_meal)+1;
+          if (id(act_meal) == id(stop_meal)) {
+            id(engine).turn_off();
+            id(engine_led).turn_off();
+            id(act_meal) = 0;
+          }
+
 sensor:
   - platform: uptime
     name: $devicename Uptime
+    id: uptime_sensor
 
   - platform: wifi_signal
     name: $devicename WiFi Signal
