@@ -1,3 +1,28 @@
+#-------------------------------------------------------------------------------
+#                             Smart Pets Feeder
+#                              v1.00 29/03/2023
+#                    By Massimo "RedFoxy Darrest" Ciccio'
+#              https://redfoxy.it - https://github.com/RedFoxy
+#-------------------------------------------------------------------------------
+# Hardware used: Wemos D1 Mini
+# Pin used:
+# - D1/GPIO5  - Switch used to turn on the engine
+# - D7/GPIO13 - A led that show when teh engine is on
+# - D5/GPIO14 - Connected to the button used to count each cycle
+# - D6/GPIO12 - An external button for extra meal
+#-------------------------------------------------------------------------------
+# Remembert to change each "substitutions" variables to customize your pet
+# feeder, and remember that each "!secret" variable are declared under the
+# ESPHome's page called "Secrets".
+# If you want to use DHCP and not a static ip addres remove following rows:
+#   static_ipaddr: 192.168.0.150
+#   manual_ip:
+#     static_ip: $static_ipaddr
+#     gateway:   !secret gateway
+#     subnet:    !secret subnet
+#     dns1:      !secret dns1
+#-------------------------------------------------------------------------------
+
 substitutions:
   devicename:   Smart Pets Feeder
   devicename_id: pets-feeder
@@ -66,140 +91,310 @@ globals:
     type: bool
     initial_value: 'false'
 
-number:
+select:
   - platform: template
-    name: "Extra Meal - Food quantity"
+    name: "Extra Meal - Food quantity (0 = None)"
     id: extra_meal_qty
     icon: "mdi:counter"
-    restore_value: true
+    restore_value: yes
     optimistic: true
-    min_value: 0
-    max_value: 10
-    step: 1
+    options:
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+      - "9"
 
   - platform: template
-    name: "Meal 1 - Food quantity"
+    name: "Meal 1 - Food quantity (0 = None)"
     id: meal_1_qty
     icon: "mdi:counter"
-    restore_value: true
+    restore_value: yes
     optimistic: true
-    min_value: 0
-    max_value: 10
-    step: 1
+    options:
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+      - "9"
 
   - platform: template
     name: "Meal 1 - Schedule: Hour"
     id: meal_1_hour
     icon: "mdi:hours-24"
-    restore_value: true
+    restore_value: yes
     optimistic: true
-    min_value: 0
-    max_value: 23
-    step: 1
+    options:
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+      - "9"
+      - "10"
+      - "11"
+      - "12"
+      - "13"
+      - "14"
+      - "15"
+      - "16"
+      - "17"
+      - "18"
+      - "19"
+      - "20"
+      - "21"
+      - "22"
+      - "23"
 
   - platform: template
     name: "Meal 1 - Schedule: Minute"
     id: meal_1_mins
     icon: "mdi:clock-time-one-outline"
-    restore_value: true
+    restore_value: yes
     optimistic: true
-    min_value: 0
-    max_value: 59
-    step: 1
+    options:
+      - "0"
+      - "5"
+      - "10"
+      - "15"
+      - "20"
+      - "25"
+      - "30"
+      - "35"
+      - "40"
+      - "45"
+      - "50"
+      - "55"
 
   - platform: template
-    name: "Meal 2 - Food quantity"
+    name: "Meal 2 - Food quantity (0 = None)"
     id: meal_2_qty
     icon: "mdi:counter"
-    restore_value: true
+    restore_value: yes
     optimistic: true
-    min_value: 0
-    max_value: 10
-    step: 1
+    options:
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+      - "9"
 
   - platform: template
     name: "Meal 2 - Schedule: Hour"
     id: meal_2_hour
     icon: "mdi:hours-24"
-    restore_value: true
+    restore_value: yes
     optimistic: true
-    min_value: 0
-    max_value: 23
-    step: 1
+    options:
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+      - "9"
+      - "10"
+      - "11"
+      - "12"
+      - "13"
+      - "14"
+      - "15"
+      - "16"
+      - "17"
+      - "18"
+      - "19"
+      - "20"
+      - "21"
+      - "22"
+      - "23"
 
   - platform: template
     name: "Meal 2 - Schedule: Minute"
     id: meal_2_mins
     icon: "mdi:clock-time-one-outline"
-    restore_value: true
+    restore_value: yes
     optimistic: true
-    min_value: 0
-    max_value: 59
-    step: 1
+    options:
+      - "0"
+      - "5"
+      - "10"
+      - "15"
+      - "20"
+      - "25"
+      - "30"
+      - "35"
+      - "40"
+      - "45"
+      - "50"
+      - "55"
 
   - platform: template
-    name: "Meal 3 - Food quantity"
+    name: "Meal 3 - Food quantity (0 = None)"
     id: meal_3_qty
     icon: "mdi:counter"
-    restore_value: true
+    restore_value: yes
     optimistic: true
-    min_value: 0
-    max_value: 10
-    step: 1
+    options:
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+      - "9"
+      - "10"
 
   - platform: template
     name: "Meal 3 - Schedule: Hour"
     id: meal_3_hour
     icon: "mdi:hours-24"
-    restore_value: true
+    restore_value: yes
     optimistic: true
-    min_value: 0
-    max_value: 23
-    step: 1
+    options:
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+      - "9"
+      - "10"
+      - "11"
+      - "12"
+      - "13"
+      - "14"
+      - "15"
+      - "16"
+      - "17"
+      - "18"
+      - "19"
+      - "20"
+      - "21"
+      - "22"
+      - "23"
 
   - platform: template
     name: "Meal 3 - Schedule: Minute"
     id: meal_3_mins
     icon: "mdi:clock-time-one-outline"
-    restore_value: true
+    restore_value: yes
     optimistic: true
-    min_value: 0
-    max_value: 59
-    step: 1
+    options:
+      - "0"
+      - "5"
+      - "10"
+      - "15"
+      - "20"
+      - "25"
+      - "30"
+      - "35"
+      - "40"
+      - "45"
+      - "50"
+      - "55"
 
   - platform: template
-    name: "Meal 4 - Food quantity"
+    name: "Meal 4 - Food quantity (0 = None)"
     id: meal_4_qty
     icon: "mdi:counter"
-    restore_value: true
+    restore_value: yes
     optimistic: true
-    min_value: 0
-    max_value: 10
-    step: 1
+    options:
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+      - "9"
 
   - platform: template
     name: "Meal 4 - Schedule: Hour"
     id: meal_4_hour
     icon: "mdi:hours-24"
-    restore_value: true
+    restore_value: yes
     optimistic: true
-    min_value: 0
-    max_value: 23
-    step: 1
+    options:
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+      - "9"
+      - "10"
+      - "11"
+      - "12"
+      - "13"
+      - "14"
+      - "15"
+      - "16"
+      - "17"
+      - "18"
+      - "19"
+      - "20"
+      - "21"
+      - "22"
+      - "23"
 
   - platform: template
     name: "Meal 4 - Schedule: Minute"
     id: meal_4_mins
     icon: "mdi:clock-time-one-outline"
-    restore_value: true
+    restore_value: yes
     optimistic: true
-    min_value: 0
-    max_value: 59
-    step: 1
+    options:
+      - "0"
+      - "5"
+      - "10"
+      - "15"
+      - "20"
+      - "25"
+      - "30"
+      - "35"
+      - "40"
+      - "45"
+      - "50"
+      - "55"
 
 time:
   - platform: sntp
-    timezone: Europe/Rome
+    timezone: !secret time_zone
+    servers:  !secret ntp_servers
     id: local_time
     on_time_sync:
       then:
@@ -227,10 +422,60 @@ text_sensor:
     id: current_time
     lambda: |-
       if (id(time_upd)) {
-        if (id(local_time).now().hour == (int)id(meal_1_hour).state && id(local_time).now().minute == (int)id(meal_1_mins).state) {id(meal1).press();}
-        if (id(local_time).now().hour == (int)id(meal_2_hour).state && id(local_time).now().minute == (int)id(meal_2_mins).state) {id(meal2).press();}
-        if (id(local_time).now().hour == (int)id(meal_3_hour).state && id(local_time).now().minute == (int)id(meal_3_mins).state) {id(meal3).press();}
-        if (id(local_time).now().hour == (int)id(meal_4_hour).state && id(local_time).now().minute == (int)id(meal_4_mins).state) {id(meal4).press();}
+        int meal1_qty  = stoi(id(meal_1_qty).state);
+        int meal1_hour = stoi(id(meal_1_hour).state);
+        int meal1_mins = stoi(id(meal_1_mins).state);
+
+        int meal2_qty  = stoi(id(meal_2_qty).state);
+        int meal2_hour = stoi(id(meal_2_hour).state);
+        int meal2_mins = stoi(id(meal_2_mins).state);
+
+        int meal3_qty  = stoi(id(meal_3_qty).state);
+        int meal3_hour = stoi(id(meal_3_hour).state);
+        int meal3_mins = stoi(id(meal_3_mins).state);
+
+        int meal4_qty  = stoi(id(meal_4_qty).state);
+        int meal4_hour = stoi(id(meal_4_hour).state);
+        int meal4_mins = stoi(id(meal_4_mins).state);
+
+        int hour = id(local_time).now().hour;
+        int min  = id(local_time).now().minute;
+
+        if (meal1_qty > 0 && hour == meal1_hour && min == meal1_mins) {
+          if (id(skip_next) == 0) {
+            id(stop_meal) = meal1_qty;
+            id(engine).turn_on();
+          } else {
+            id(skip_next) = 0;
+          }
+        }
+
+        if (meal2_qty > 0 && hour == meal2_hour && min == meal2_mins) {
+          if (id(skip_next) == 0) {
+            id(stop_meal) = meal2_qty;
+            id(engine).turn_on();
+          } else {
+            id(skip_next) = 0;
+          }
+        }
+
+        if (meal3_qty > 0 && hour == meal3_hour && min == meal3_mins) {
+          if (id(skip_next) == 0) {
+            id(stop_meal) = meal3_qty;
+            id(engine).turn_on();
+          } else {
+            id(skip_next) = 0;
+          }
+        }
+
+        if (meal4_qty > 0 && hour == meal4_hour && min == meal4_mins) {
+          if (id(skip_next) == 0) {
+            id(stop_meal) = meal4_qty;
+            id(engine).turn_on();
+          } else {
+            id(skip_next) = 0;
+          }
+        }
       }
 
       char str[17];
@@ -243,61 +488,24 @@ button:
   - platform: restart
     name: "$devicename Riavvia"
 
+#------------------------------------------------------------------------------- Extra Meal
   - platform: template
-    name: "Meal 1"
-    id: meal1
-    internal: true
+    id: "extra_meal"
+    name: "Extra Meal"
+    icon: "mdi:cat"
     on_press:
       - lambda: |-
-          if (id(skip_next) == 0 && (int)id(meal_1_qty).state > 0) {
-            id(stop_meal) = (int)id(meal_1_qty).state;
-            id(engine).turn_on();
-          } else {
-            id(skip_next) = 0;
-          }
+          int extra_qty = stoi(id(extra_meal_qty).state);
 
-  - platform: template
-    name: "Meal 2"
-    id: meal2
-    internal: true
-    on_press:
-      - lambda: |-
-          if (id(skip_next) == 0 && (int)id(meal_2_qty).state > 0) {
-            id(stop_meal) = (int)id(meal_2_qty).state;
+          if (extra_qty > 0) {
+            id(stop_meal) = extra_qty;
             id(engine).turn_on();
-          } else {
-            id(skip_next) = 0;
-          }
-
-  - platform: template
-    name: "Meal 3"
-    id: meal3
-    internal: true
-    on_press:
-      - lambda: |-
-          if (id(skip_next) == 0 && (int)id(meal_3_qty).state > 0) {
-            id(stop_meal) = (int)id(meal_3_qty).state;
-            id(engine).turn_on();
-          } else {
-            id(skip_next) = 0;
-          }
-
-  - platform: template
-    name: "Meal 4"
-    id: meal4
-    internal: true
-    on_press:
-      - lambda: |-
-          if (id(skip_next) == 0 && (int)id(meal_4_qty).state > 0) {
-            id(stop_meal) = (int)id(meal_4_qty).state;
-            id(engine).turn_on();
-          } else {
-            id(skip_next) = 0;
           }
 
 switch:
+#------------------------------------------------------------------------------- Skip next meal
   - platform: template
-    name: "Skip next"
+    name: "Skip next meal"
     id: skip_next_meal
     icon: "mdi:debug-step-over"
     lambda: |-
@@ -337,26 +545,6 @@ switch:
     internal: true
     icon: "mdi:led-off"
 
-#------------------------------------------------------------------------------- Extra Meal
-# Connect Extra Meal button to D6/GPIO12 or change it
-  - platform: gpio
-    pin:
-      number: D6
-      mode:
-        input: true
-        pullup: true
-      inverted: true
-    id: "extra_meal"
-    name: "Extra Meal"
-    on_turn_on:
-      - lambda: |-
-          if ((int)id(extra_meal_qty).state > 0) {
-            id(stop_meal) = (int)id(extra_meal_qty).state;
-            id(engine).turn_on();
-          }
-      - delay: 100ms
-      - switch.turn_off: extra_meal
-
 binary_sensor:
   - platform: status
     name: $devicename State
@@ -374,12 +562,32 @@ binary_sensor:
     internal: true
     on_press:
       - lambda: |-
-          id(act_meal) = id(act_meal)+1;
-          if (id(act_meal) == id(stop_meal)) {
+          int actMeal = id(act_meal);
+          int stopMeal = id(stop_meal);
+
+          actMeal++;
+          id(act_meal) = actMeal;
+
+          if (actMeal == stopMeal) {
             id(engine).turn_off();
             id(engine_led).turn_off();
             id(act_meal) = 0;
           }
+
+#------------------------------------------------------------------------------- Extra Meal - Extrenal button
+# Connect Extra Meal button to D6/GPIO12 or change it
+  - platform: gpio
+    pin:
+      number: D6
+      mode:
+        input: true
+        pullup: true
+      inverted: true
+    id: "extra_meal_button"
+    internal: true
+    on_press:
+     then:
+       - button.press: extra_meal
 
 sensor:
   - platform: uptime
