@@ -1,0 +1,23 @@
+v1.0.1 30/03/2023
+- Removed unused variables
+- Add descriptions to help users to understand and customize the code
+- Moved check timer to time and check every minute at 0 seconds
+- Add in log when a meal is released
+
+v1.00 29/03/2023
+- Add descriptions to help users to understand and customize the code
+- Fix some labels
+- Change timer and quantity of food from slider select
+- Change extra meal from switch to button entity
+- Add ntp server
+- Move timezone and ntp servers to secret variables
+- Declare all variables before to use it to avoid type mismatch and crash
+- Removed internal buttons and make code lighter
+
+v0.90 26/06/2022
+- Add support to external button for extra meal
+- Fix some labels
+- Remove the hard-coded time for each meal and moved on web interface with sliders
+- Add restore from flash
+
+v0.80 25/06/2022 First release!
