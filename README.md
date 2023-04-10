@@ -4,6 +4,8 @@ In this guide I'll use the cheaper Aonboy's pets feeder, but you can apply the s
 
 This project use ESPHome
 
+<a href="https://www.buymeacoffee.com/redfoxydarrest" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+
 The hardware used in this guide:
 - [Aonboy pets feeder](https://amzn.to/3BgnfPF)
 - [Wemos D1 Mini](https://amzn.to/3xlyNih)
@@ -29,6 +31,8 @@ That are all project goals
 # Rendi domotico il distributore di cibo per animali! ![Italiano](https://img.shields.io/badge/-italiano-blue)
 Questo progetto è nato dalla necessità di rendere più funzionale e domotico il mio distributore di cibo per gatti, aggiungendo la possibilit àdi controllarlo e comandarlo da Home Assistant, Alexa, Google Home, Apple e altri sistemi.
 In questa guida userò come esempio l'economico distributore di cibo per animali della Aonboy, ma potrete applicare le stesse nozioni per qualsiasi distrubitore di cibo similare.
+
+<a href="https://www.buymeacoffee.com/redfoxydarrest" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
 In questa guida ho usato:
 - [Aonboy distributore di cibo](https://amzn.to/3BgnfPF)
